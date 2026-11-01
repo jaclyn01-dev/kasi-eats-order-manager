@@ -31,10 +31,21 @@ print(f"{quantity} units ordered at R {price:.2f} per unit.")
 
 #Subtotal, VAT and Total
 subtotal = price * quantity
-vat = subtotal * vat_rate #VAT is added on top of the menu prices, as in the project brief
-total = subtotal + vat
+
+#Discount
+discount = 0.0
+if subtotal >= 200:
+    discount = subtotal * 0.10
+
+taxable = subtotal - discount
+vat = taxable * vat_rate # Discount applied before VAT, so customer is taxed only on the discounted amount
+total = taxable + vat
 
 print(f"Subtotal: R {subtotal:.2f}")
+
+if discount > 0:
+    print(f"Discount (10%): R {discount:.2f}")
+
 print(f"VAT: R {vat:.2f}")
 print(f"Total: R {total:.2f}")
 
@@ -49,3 +60,30 @@ coins = change // 10
 remainder = change % 10
 
 print(f"R {change:.2f} ({int(coins)} x R 10 + R {remainder:.2f})")
+
+#Main Menu Loop
+
+options = ["New Order", "View Menu", "Daily Summary", "Exit"]
+
+while True:
+    print("MAIN MENU")
+    for i, name in enumerate(options, 1):
+        print(f"{i}. {name}")
+    
+    choice = input("Choose an option: ")
+
+    if choice == "1":
+        print("New order coming soon.")
+
+    elif choice == "2":
+        print("New order coming soon.")
+
+    elif choice == "3":
+        print("New order coming soon.")
+
+    elif choice == "4":
+        print("Sala kahle! Sales saved.")
+        break
+
+    else:
+        print("Invalid option. Please choose 1 to 4.")
