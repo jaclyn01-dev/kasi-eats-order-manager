@@ -2,7 +2,7 @@
 stall_name = "Kasi Eats" #str
 owner_name = "Mama Thandi" #str
 location = "Soweto" #str
-vat_rate = 0.15 #float
+VAT_RATE = 0.15 #float
 is_open = True #bool
 
 #Menu Dictionary
@@ -16,7 +16,6 @@ MENU = {
 }
 
 items_on_menu = len(MENU) #int
-items_sold_today = set()
 
 def apply_discount(subtotal):
     """Return the discount amount: 10% of subtotal if subtotal is R200 or more, else 0."""
@@ -79,58 +78,60 @@ def take_order(menu):
 
     return order
 
-# Welcome Banner
-print("=" * 50)
-print(f"{stall_name} ORDER MANAGER - {location}".upper().center(50))
-print("=" * 50)
+# Main Program
+def main():
+    """Run the Kasi Eats order manager."""
+    items_sold_today = set()
+    options = ["New Order", "View Menu", "Daily Summary", "Exit"]
 
-#Variable Types
-print(f"stall_name is {type(stall_name)}")
-print(f"owner_name is {type(owner_name)}")
-print(f"location is {type(location)}")
-print(f"vat_rate is {type(vat_rate)}")
-print(f"is_open is {type(is_open)}")
-print(f"items_on_menu is {type(items_on_menu)}")
+    print("=" * 50)
+    print(f"{stall_name} ORDER MANAGER - {location}".upper().center(50))
+    print("=" * 50)
 
-#Cashier Greeting
-cashier_name = input("Cashier name: ")
-print(f"Sawubona, {cashier_name}! Let's sell some kotas.")
+    print(f"stall_name is {type(stall_name)}")
+    print(f"owner_name is {type(owner_name)}")
+    print(f"location is {type(location)}")
+    print(f"vat_rate is {type(VAT_RATE)}")
+    print(f"is_open is {type(is_open)}")
+    print(f"items_on_menu is {type(items_on_menu)}")
 
-#Main Menu Loop
+    cashier_name = input("Cashier name: ")
+    print(f"Sawubona, {cashier_name}! Let's sell some kotas.")
 
-options = ["New Order", "View Menu", "Daily Summary", "Exit"]
+    while True:
+        print("MAIN MENU")
+        for i, name in enumerate(options, 1):
+            print(f"{i}. {name}")
 
-while True:
-    print("MAIN MENU")
-    for i, name in enumerate(options, 1):
-        print(f"{i}. {name}")
-    
-    choice = input("Choose an option: ")
+        choice = input("Choose an option: ")
 
-    if choice == "1":
-        order = take_order(MENU)
-        for name, qty, line_total in order:
-            items_sold_today.add(name)
+        if choice == "1":
+            order = take_order(MENU)
+            for name, qty, line_total in order:
+                items_sold_today.add(name)
 
-        total = print_receipt(order, vat_rate)
+            total = print_receipt(order, VAT_RATE)
 
-        cash_paid = float(input("Cash paid: "))
-        change = cash_paid - total
-        print(f"{'Change':<15}{'':>3}      R {change:>6.2f}")
-        coins = change // 10
-        remainder = change % 10
-        print(f"({int(coins)} x R10 + R {remainder:.2f})")
+            cash_paid = float(input("Cash paid: "))
+            change = cash_paid - total
+            print(f"{'Change':<15}{'':>3}      R {change:>6.2f}")
+            coins = change // 10
+            remainder = change % 10
+            print(f"({int(coins)} x R10 + R {remainder:.2f})")
+
+        elif choice == "2":
+            show_menu(MENU)
+
+        elif choice == "3":
+            print("New order coming soon.")
+
+        elif choice == "4":
+            print("Sala kahle! Sales saved.")
+            break
+
+        else:
+            print("Invalid option. Please choose 1 to 4.")
 
 
-    elif choice == "2":        
-        show_menu(MENU)
-
-    elif choice == "3":
-        print("New order coming soon.")
-
-    elif choice == "4":
-        print("Sala kahle! Sales saved.")
-        break
-
-    else:
-        print("Invalid option. Please choose 1 to 4.")
+if __name__ == "__main__":
+    main()
