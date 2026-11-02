@@ -18,6 +18,67 @@ MENU = {
 items_on_menu = len(MENU) #int
 items_sold_today = set()
 
+def apply_discount(subtotal):
+    """Return the discount amount: 10% of subtotal if subtotal is R200 or more, else 0."""
+    if subtotal >= 200:
+        return subtotal * 0.10
+    return 0.0
+
+def calculate_total(order, vat_rate):
+    """Return (subtotal, discount, vat, total) for an order."""
+    subtotal = 0
+    for name, qty, line_total in order:
+        subtotal += line_total
+
+    discount = apply_discount(subtotal)
+    taxable = subtotal - discount
+    vat = taxable * vat_rate
+    total = taxable + vat
+
+    return subtotal, discount, vat, total
+
+
+def show_menu(menu):
+    """Print the menu with the prices, one item per line."""
+    print("MENU")
+    for name, price in menu.items():
+        print(f"{name.title():<15} R {price:>6.2f}")
+
+def print_receipt(order, vat_rate):
+    """Print item lines and totals; return the grand total."""
+    print("RECEIPT")
+    for name, qty, line_total in order:
+        print(f"{name.title():<15}{qty:>3}      R {line_total:>6.2f}")
+
+    subtotal, discount, vat, total = calculate_total(order, vat_rate)
+
+    print(f"{'Subtotal':<15}{'':>3}      R {subtotal:>6.2f}")
+    if discount > 0:
+        print(f"{'Discount (10%)':<15}{'':>3}      R {discount:>6.2f}")
+    print(f"{'VAT (15%)':<15}{'':>3}      R {vat:>6.2f}")
+    print(f"{'TOTAL':<15}{'':>3}      R {total:>6.2f}")
+
+    return total
+
+def take_order(menu):
+    """Collect items from the cashier; return a list of (item, qty, line_total) tuples."""
+    order = []
+    while True:
+        item = input("Item (or 'done'): ").strip().lower()
+
+        if item == "done":
+            break
+
+        if item not in menu:
+            print("Unknown item. Try again.")
+            continue
+
+        qty = int(input("Quantity: "))
+        line_total = menu[item] * qty
+        order.append((item, qty, line_total))
+
+    return order
+
 # Welcome Banner
 print("=" * 50)
 print(f"{stall_name} ORDER MANAGER - {location}".upper().center(50))
@@ -35,44 +96,6 @@ print(f"items_on_menu is {type(items_on_menu)}")
 cashier_name = input("Cashier name: ")
 print(f"Sawubona, {cashier_name}! Let's sell some kotas.")
 
-# # Price and Quantity
-# price = float(input("How much is the item? "))
-# quantity = int(input("How many units ordered? "))
-
-# print(f"{quantity} units ordered at R {price:.2f} per unit.")
-
-# #Subtotal, VAT and Total
-# subtotal = price * quantity
-
-# #Discount
-# discount = 0.0
-# if subtotal >= 200:
-#     discount = subtotal * 0.10
-
-# taxable = subtotal - discount
-# vat = taxable * vat_rate # Discount applied before VAT, so customer is taxed only on the discounted amount
-# total = taxable + vat
-
-# print(f"Subtotal: R {subtotal:.2f}")
-
-# if discount > 0:
-#     print(f"Discount (10%): R {discount:.2f}")
-
-# print(f"VAT: R {vat:.2f}")
-# print(f"Total: R {total:.2f}")
-
-# #Cash Paid and Change
-# cash_paid = float(input("Cash Paid: "))
-
-# change = cash_paid - total
-
-# print(f"Change: R {change:.2f}")
-
-# coins = change // 10
-# remainder = change % 10
-
-# print(f"R {change:.2f} ({int(coins)} x R 10 + R {remainder:.2f})")
-
 #Main Menu Loop
 
 options = ["New Order", "View Menu", "Daily Summary", "Exit"]
@@ -85,43 +108,11 @@ while True:
     choice = input("Choose an option: ")
 
     if choice == "1":
-        order = []
-        while True:
-            item = input("Item (or 'done'): ").strip().lower()
-            
-            if item == "done":
-                break
-
-            if item not in MENU:
-                print("Unknown item. Try again.")
-                continue
-
-            qty = int(input("Quantity: "))
-            line_total = MENU[item] * qty
-            order.append((item, qty, line_total))
-            items_sold_today.add(item)
-
-        print("RECEIPT")
+        order = take_order(MENU)
         for name, qty, line_total in order:
-            print(f"{name.title():<15}{qty:>3}      R {line_total:>6.2f}")
+            items_sold_today.add(name)
 
-        subtotal = 0
-        for name, qty, line_total in order:
-            subtotal += line_total
-
-        discount = 0.0
-        if subtotal >= 200:
-            discount = subtotal * 0.10
-
-        taxable = subtotal - discount
-        vat = taxable * vat_rate
-        total = taxable + vat
-
-        print(f"{'Subtotal':<15}{'':>3}      R {subtotal:>6.2f}")
-        if discount > 0:
-            print(f"{'Discount (10%)':<15}{'':>3}      R {discount:>6.2f}")
-        print(f"{'VAT (15%)':<15}{'':>3}      R {vat:>6.2f}")
-        print(f"{'TOTAL':<15}{'':>3}      R {total:>6.2f}")
+        total = print_receipt(order, vat_rate)
 
         cash_paid = float(input("Cash paid: "))
         change = cash_paid - total
@@ -132,9 +123,7 @@ while True:
 
 
     elif choice == "2":        
-        print("MENU")
-        for name, price in MENU.items():
-            print(f"{name.title():<15} R {price:>6.2f}")
+        show_menu(MENU)
 
     elif choice == "3":
         print("New order coming soon.")
