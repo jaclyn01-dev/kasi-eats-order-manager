@@ -1,3 +1,5 @@
+from utils import apply_discount, load_menu, save_sale, load_sales, daily_summary 
+
 # Kasi Eats Stall Information
 stall_name = "Kasi Eats" #str
 owner_name = "Mama Thandi" #str
@@ -5,23 +7,9 @@ location = "Soweto" #str
 VAT_RATE = 0.15 #float
 is_open = True #bool
 
-#Menu Dictionary
-MENU = {
-    "kota": 35.00,
-    "vetkoek": 12.50,
-    "chips": 25.00,
-    "cooldrink": 15.00,
-    "samoosa": 8.00,
-    "polony roll": 20.00,
-}
+MENU = load_menu("data/menu.json")
 
 items_on_menu = len(MENU) #int
-
-def apply_discount(subtotal):
-    """Return the discount amount: 10% of subtotal if subtotal is R200 or more, else 0."""
-    if subtotal >= 200:
-        return subtotal * 0.10
-    return 0.0
 
 def calculate_total(order, vat_rate):
     """Return (subtotal, discount, vat, total) for an order."""
@@ -118,12 +106,13 @@ def main():
             coins = change // 10
             remainder = change % 10
             print(f"({int(coins)} x R10 + R {remainder:.2f})")
+            save_sale(order, total)
 
         elif choice == "2":
             show_menu(MENU)
 
         elif choice == "3":
-            print("New order coming soon.")
+            daily_summary()
 
         elif choice == "4":
             print("Sala kahle! Sales saved.")
