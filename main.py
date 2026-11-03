@@ -60,7 +60,17 @@ def take_order(menu):
             print("Unknown item. Try again.")
             continue
 
-        qty = int(input("Quantity: "))
+        while True:
+            try:
+                qty = int(input("Quantity: "))
+            except ValueError:
+                print("Please enter a whole number.")
+                continue
+            if qty <= 0:
+                print("Quantity must be a positive whole number.")
+                continue
+            break
+
         line_total = menu[item] * qty
         order.append((item, qty, line_total))
 
@@ -100,7 +110,17 @@ def main():
 
             total = print_receipt(order, VAT_RATE)
 
-            cash_paid = float(input("Cash paid: "))
+            while True:
+                try:
+                    cash_paid = float(input("Cash paid: "))
+                except ValueError:
+                    print("Please enter a valid amount.")
+                    continue
+                if cash_paid < total:
+                    print(f"Cash paid is less than total (R {total:.2f}).")
+                    continue
+                break
+            
             change = cash_paid - total
             print(f"{'Change':<15}{'':>3}      R {change:>6.2f}")
             coins = change // 10
