@@ -3,6 +3,7 @@
 import json
 import csv
 from datetime import datetime
+from models import MenuItem
 
 def apply_discount(subtotal):
     """Return the discount amount: 10% of subtotal if subtotal is R200 or more, else 0."""
@@ -11,9 +12,10 @@ def apply_discount(subtotal):
     return 0.0
 
 def load_menu(filepath):
-    """Load and return the menu dictionary from a JSON file."""
+    """Load the menu from JSON and return a dict of name -> MenuItem."""
     with open(filepath) as f:
-        return json.load(f)
+        raw = json.load(f)
+    return {name: MenuItem(name, price) for name, price in raw.items()}
 
 def save_sale(order, total):
     """Append one order to data/sales.csv."""

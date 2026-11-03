@@ -1,3 +1,4 @@
+from models import Order
 from utils import apply_discount, load_menu, save_sale, load_sales, daily_summary 
 
 # Kasi Eats Stall Information
@@ -12,7 +13,7 @@ MENU = load_menu("data/menu.json")
 items_on_menu = len(MENU) #int
 
 def calculate_total(order, vat_rate):
-    """Return (subtotal, discount, vat, total) for an order."""
+    """Return (subtotal, discount, vat) for display; Order.total() gives the final number."""
     subtotal = 0
     for name, qty, line_total in order:
         subtotal += line_total
@@ -20,24 +21,23 @@ def calculate_total(order, vat_rate):
     discount = apply_discount(subtotal)
     taxable = subtotal - discount
     vat = taxable * vat_rate
-    total = taxable + vat
 
-    return subtotal, discount, vat, total
-
+    return subtotal, discount, vat
 
 def show_menu(menu):
     """Print the menu with the prices, one item per line."""
     print("MENU")
-    for name, price in menu.items():
-        print(f"{name.title():<15} R {price:>6.2f}")
+    for item in menu.values():
+        print(item)
 
 def print_receipt(order, vat_rate):
     """Print item lines and totals; return the grand total."""
     print("RECEIPT")
-    for name, qty, line_total in order:
+    for name, qty, line_total in order.items:
         print(f"{name.title():<15}{qty:>3}      R {line_total:>6.2f}")
 
-    subtotal, discount, vat, total = calculate_total(order, vat_rate)
+    subtotal, discount, vat = calculate_total(order.items, vat_rate)
+    total = order.total(vat_rate)
 
     print(f"{'Subtotal':<15}{'':>3}      R {subtotal:>6.2f}")
     if discount > 0:
@@ -48,8 +48,9 @@ def print_receipt(order, vat_rate):
     return total
 
 def take_order(menu):
-    """Collect items from the cashier; return a list of (item, qty, line_total) tuples."""
-    order = []
+    """Collect items from the cashier; return an Order."""
+    order = Order()
+
     while True:
         item = input("Item (or 'done'): ").strip().lower()
 
@@ -71,15 +72,14 @@ def take_order(menu):
                 continue
             break
 
-        line_total = menu[item] * qty
-        order.append((item, qty, line_total))
+        line_total = menu[item].price * qty
+        order.add_item(item, qty, line_total)
 
     return order
 
 # Main Program
 def main():
     """Run the Kasi Eats order manager."""
-    items_sold_today = set()
     options = ["New Order", "View Menu", "Daily Summary", "Exit"]
 
     print("=" * 50)
@@ -105,9 +105,6 @@ def main():
 
         if choice == "1":
             order = take_order(MENU)
-            for name, qty, line_total in order:
-                items_sold_today.add(name)
-
             total = print_receipt(order, VAT_RATE)
 
             while True:
@@ -120,13 +117,13 @@ def main():
                     print(f"Cash paid is less than total (R {total:.2f}).")
                     continue
                 break
-            
+
             change = cash_paid - total
             print(f"{'Change':<15}{'':>3}      R {change:>6.2f}")
             coins = change // 10
             remainder = change % 10
             print(f"({int(coins)} x R10 + R {remainder:.2f})")
-            save_sale(order, total)
+            save_sale(order.items, total)
 
         elif choice == "2":
             show_menu(MENU)
