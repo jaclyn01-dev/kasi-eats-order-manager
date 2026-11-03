@@ -29,8 +29,12 @@ def save_sale(order, total):
 
 def load_sales():
     """Read data/sales.csv and return a list of sale dicts."""
+    try:
+        f = open("data/sales.csv")
+    except FileNotFoundError:
+        return []
     sales = []
-    with open("data/sales.csv") as f:
+    with f:
         reader = csv.DictReader(f)
         for row in reader:
             sales.append({
